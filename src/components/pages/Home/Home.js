@@ -1,5 +1,5 @@
 // Dependencies
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { ToastContainer, toast } from 'react-toastify'
@@ -30,7 +30,7 @@ export const Home = () => {
   const [fileSelected, setFileSelected] = useState(null)
   const [loading, setLoading] = useState(false)
 
-  const fetchFiles = async () => {
+  const fetchFiles = useCallback(async () => {
     await get('/')
       .then((response) => {
         if (response.data === null) {
@@ -44,9 +44,9 @@ export const Home = () => {
         toast.error('Error try to fetching file list')
         console.log(error)
       })
-  }
+  }, [dispatch])
 
-  const fetchFileData = async () => {
+  const fetchFileData = useCallback(async () => {
     setLoading(true)
     await get(`/data?filename=${filename}`)
       .then((response) => {
@@ -64,17 +64,15 @@ export const Home = () => {
       .finally(() => {
         setLoading(false)
       })
-  }
+  }, [dispatch, filename])
 
   useEffect(() => {
-    fetchFiles()
-  }, [])
+    fetchFiles().catch(console.error)
+  }, [fetchFiles])
 
   useEffect(() => {
-    if (filename.length > 0) {
-      fetchFileData()
-    }
-  }, [filename])
+    fetchFileData().catch(console.error)
+  }, [filename, fetchFileData])
 
   const handleFilesChange = ({ value, label }) => {
     setFileSelected({ value, label })
