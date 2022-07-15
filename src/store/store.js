@@ -1,6 +1,8 @@
 // Dependencies
 import { applyMiddleware, compose, createStore } from 'redux'
 import thunk from 'redux-thunk'
+
+// Reducers
 import { rootReducer } from '../reducers/rootReducer'
 
 const composeEnhancers =

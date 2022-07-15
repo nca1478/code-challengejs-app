@@ -31,7 +31,7 @@ export const Home = () => {
   const [loading, setLoading] = useState(false)
 
   const fetchFiles = useCallback(async () => {
-    await get('/')
+    await get('/list')
       .then((response) => {
         if (response.data === null) {
           toast.error('No files found')
@@ -71,7 +71,9 @@ export const Home = () => {
   }, [fetchFiles])
 
   useEffect(() => {
-    fetchFileData().catch(console.error)
+    if (filename.length > 0) {
+      fetchFileData().catch(console.error)
+    }
   }, [filename, fetchFileData])
 
   const handleFilesChange = ({ value, label }) => {
