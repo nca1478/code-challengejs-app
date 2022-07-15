@@ -1,24 +1,21 @@
 // Dependencies
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { ToastContainer, toast } from 'react-toastify'
 import { Container, Button } from 'react-bootstrap'
+import { ToastContainer } from 'react-toastify'
 import queryString from 'query-string'
 
 // Custom Dependencies
-import { get } from '../../../config/api'
 import { MainNavbar } from '../../common/MainNavbar/MainNavbar'
 import { MainTable } from '../../common/MainTable/MainTable'
 import { SelectForm } from '../../common/SelectForm/SelectForm'
-import { parseData } from '../../../helpers/parseData'
 import { Loader } from '../../common/Spinners/Loader'
 import {
   fileClearActive,
-  fileSetActive,
-  fileGetList,
-  fileLoaded,
   fileUnloaded,
+  startFileGetList,
+  startFileGetData,
 } from '../../../actions/files'
 
 export const Home = () => {
@@ -30,51 +27,15 @@ export const Home = () => {
   const [fileSelected, setFileSelected] = useState(null)
   const [loading, setLoading] = useState(false)
 
-  const fetchFiles = useCallback(async () => {
-    await get('/list')
-      .then((response) => {
-        if (response.data === null) {
-          toast.error('No files found')
-        } else {
-          const filesList = parseData(response.data)
-          dispatch(fileGetList(filesList))
-        }
-      })
-      .catch((error) => {
-        toast.error('Error try to fetching file list')
-        console.log(error)
-      })
-  }, [dispatch])
-
-  const fetchFileData = useCallback(async () => {
-    setLoading(true)
-    await get(`/data?filename=${filename}`)
-      .then((response) => {
-        if (response.data === null) {
-          toast.error(`${filename} is empty or not found`)
-        } else {
-          dispatch(fileSetActive(response.data))
-          dispatch(fileLoaded())
-        }
-      })
-      .catch((error) => {
-        toast.error('Error try to fetching file data')
-        console.log(error)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }, [dispatch, filename])
-
   useEffect(() => {
-    fetchFiles().catch(console.error)
-  }, [fetchFiles])
+    dispatch(startFileGetList())
+  }, [dispatch])
 
   useEffect(() => {
     if (filename.length > 0) {
-      fetchFileData().catch(console.error)
+      dispatch(startFileGetData(filename, setLoading))
     }
-  }, [filename, fetchFileData])
+  }, [filename, dispatch])
 
   const handleFilesChange = ({ value, label }) => {
     setFileSelected({ value, label })
@@ -110,7 +71,7 @@ export const Home = () => {
         {loaded ? <MainTable fileData={activeFile} /> : null}
 
         <div className="d-flex justify-content-end">
-          <Button variant="danger" onClick={handleReset}>
+          <Button variant="danger" onClick={handleReset} className="mb-3">
             Reset
           </Button>
         </div>

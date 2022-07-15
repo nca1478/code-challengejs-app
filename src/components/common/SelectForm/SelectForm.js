@@ -11,6 +11,7 @@ export const SelectForm = (props) => {
         options={props.options}
         onChange={props.onChange}
         placeholder={props.placeholder}
+        isSearchable={false}
       />
     </Form.Group>
   )
